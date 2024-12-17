@@ -1,0 +1,20 @@
+library(devtools)
+library(dplyr)
+load_all()
+LD=readRDS("data/LD.rds")
+LD=bdiag(LD[[1]],LD[[2]],LD[[3]])%>%as.matrix(.)
+LDsqrt=matrixsqrt(LD)$w
+m=nrow(LD)
+beta=rnorm(m,0,1)
+beta[-sample(m,2)]=0
+beta=beta/sqrt(sum(beta^2))*sqrt(0.001)
+alpha=rnorm(m,0,sqrt(0.0005/m))
+n=2e5
+hatb=matrixVectorMultiply(LD,beta+alpha)+matrixVectorMultiply(LDsqrt,rnorm(m,0,1/sqrt(n)))
+z=hatb*sqrt(n)
+fit_susie=susie_rss(z=z,R=LD,n=n,L=5)
+beta_susie=coef(fit_susie)[-1]*(fit_susie$pip>0.5)
+R=LD; Lvec = c(0:15);cred.thres = 0.95;pip.thres = 0.5;max.iter = 100;max.eps = 0.001;susie.iter = 500;reml.iter = 10;score.test = T;estimate_residual_variance = T;pv.thres = 0.05;eigen.thres = 1
+fit_susie_inf=SuSiE_Inf_BIC(z=z,R=LD,n=n,Lvec=c(0:5))
+beta_susie_inf=fit_susie_inf$beta
+c(sqrt(sum((beta_susie_inf-beta)^2)),sqrt(sum((beta_susie-beta)^2)),cor(fit_susie_inf$alpha,alpha))
