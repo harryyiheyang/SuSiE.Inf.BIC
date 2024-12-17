@@ -1,4 +1,4 @@
-#' Fast Fine-Mapping and Estimation of Causal Variants Using SuSiE
+#' Estimation of Causal Variants Using SuSiE-Inf and Selection of Optimal Number of Single Effects using BIC
 #'
 #' This function utilizes the SuSiE (Sum of Single Effects) method for fine-mapping to identify causal variants with significant effect sizes. It used BIC (Bayesian Informative Criterion) to select the optimal L. It employs REML (Restricted Maximum Likelihood) for the estimation of infinitesimal effects and for determining the optimal variance of these effects. Additionally, the function utilizes a score test to assess whether the variance of the infinitesimal effect is zero. The function has been updated to include parameters for controlling the precision of the estimation process and the option to estimate residual variance.
 #'
@@ -52,14 +52,13 @@ Rinf=matrixMultiply(Umat,t(Umat)*(Dvec))
 Bicvec=Bvar.inf=Bpv=c(1:length(Lvec))
 Bbeta=matrix(0,m,length(Lvec))
 Balpha=matrix(0,m,length(Lvec))
-Bpip=matrix(0,m,length(Lvec))
 Bfit=list()
+beta=beta1=0*z
 for(i in 1:length(Lvec)){
-beta=beta1=alpha=z*0
 error=1
 iter=0
-pip=beta*0
 fit=NULL
+alpha=z*0
 while(error>max.eps&iter<max.iter){
 beta1=beta
 beta=beta*0
@@ -70,7 +69,6 @@ causal.cs=group.pip.filter(pip.summary=summary(fit)$var,pip.thres.cred=cred.thre
 pip.alive=causal.cs$ind.keep
 beta[-pip.alive]=0
 
-pip=fit$pip
 res.upsilon=z-matrixVectorMultiply(R,beta)
 outcome=matrixVectorMultiply(t(Umat),res.upsilon)
 for(j in 1:reml.iter){
@@ -91,16 +89,14 @@ alpha=alpha*(pv<pv.thres)
 pv=1
 }
 }
-
-df=Lvec[i]
-Theta_alpha=matrixInverse(R+LD2*mean(alpha^2))
-res=z-matrixVectorMultiply(R,beta)
-Bicvec[i]=log(sum(res*matrixVectorMultiply(Theta_alpha,res)))+log(m)/m*df
+df1=Lvec[i]
+df2=sum(Dvec*Hinv)*(pv<pv.thres)
+res=z-matrixVectorMultiply(R,beta+alpha)
+Bicvec[i]=log(sum(res*matrixVectorMultiply(Theta,res)))+log(m)/m*(df1+df2)
 Bbeta[,i]=beta
 Balpha[,i]=alpha
 Bvar.inf[i]=var.inf
 Bpv[i]=pv
-Bpip[,i]=pip
 Bfit[[i]]=fit
 }
 istar=which.min(Bicvec)
@@ -108,7 +104,6 @@ beta=Bbeta[,istar]
 alpha=Balpha[,istar]
 pv=Bpv[istar]
 var.inf=Bvar.inf[istar]
-pip=Bpip[,istar]
 fit=Bfit[[istar]]
-return(list(eta=(alpha+beta)/sqrt(n),beta=beta/sqrt(n),alpha=alpha/sqrt(n),var.inf=var.inf,pv=pv,pip=pip,fit.susie=fit,L=Lvec[istar]))
+return(list(eta=(alpha+beta)/sqrt(n),beta=beta/sqrt(n),alpha=alpha/sqrt(n),var.inf=var.inf,pv=pv,fit.susie=fit,L=Lvec[istar],Bicvec=Bicvec,df.inf=df2))
 }

@@ -6,9 +6,10 @@ LD=bdiag(LD[[1]],LD[[2]],LD[[3]])%>%as.matrix(.)
 LDsqrt=matrixsqrt(LD)$w
 m=nrow(LD)
 beta=rnorm(m,0,1)
-beta[-sample(m,2)]=0
+beta[-sample(m,4)]=0
 beta=beta/sqrt(sum(beta^2))*sqrt(0.001)
-alpha=rnorm(m,0,sqrt(0.0005/m))
+alpha=beta*0
+alpha[sample(m,floor(m/2))]=rnorm(floor(m/2),0,sqrt(0.0005/floor(m/2)))
 n=2e5
 hatb=matrixVectorMultiply(LD,beta+alpha)+matrixVectorMultiply(LDsqrt,rnorm(m,0,1/sqrt(n)))
 z=hatb*sqrt(n)
@@ -18,3 +19,8 @@ R=LD; Lvec = c(0:15);cred.thres = 0.95;pip.thres = 0.5;max.iter = 100;max.eps = 
 fit_susie_inf=SuSiE_Inf_BIC(z=z,R=LD,n=n,Lvec=c(0:5))
 beta_susie_inf=fit_susie_inf$beta
 c(sqrt(sum((beta_susie_inf-beta)^2)),sqrt(sum((beta_susie-beta)^2)),cor(fit_susie_inf$alpha,alpha))
+par(mfrow=c(2,2))
+barplot(beta)
+barplot(beta_susie)
+barplot(beta_susie_inf)
+plot(alpha,fit_susie_inf$alpha)

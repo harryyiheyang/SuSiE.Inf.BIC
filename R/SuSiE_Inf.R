@@ -1,11 +1,11 @@
-#' Estimation of Causal Variants Using SuSiE-Inf and Selection of Optimal Number of Single Effects using BIC
+#' Estimation of Causal Variants Using SuSiE-Inf
 #'
-#' This function utilizes the SuSiE (Sum of Single Effects) method for fine-mapping to identify causal variants with significant effect sizes. It used BIC (Bayesian Informative Criterion) to select the optimal L. It employs REML (Restricted Maximum Likelihood) for the estimation of infinitesimal effects and for determining the optimal variance of these effects. Additionally, the function utilizes a score test to assess whether the variance of the infinitesimal effect is zero. The function has been updated to include parameters for controlling the precision of the estimation process and the option to estimate residual variance.
+#' This function utilizes the SuSiE (Sum of Single Effects) method for fine-mapping to identify causal variants with significant effect sizes. It employs REML (Restricted Maximum Likelihood) for the estimation of infinitesimal effects and for determining the optimal variance of these effects. Additionally, the function utilizes a score test to assess whether the variance of the infinitesimal effect is zero. The function has been updated to include parameters for controlling the precision of the estimation process and the option to estimate residual variance.
 #'
 #' @param z Z scores of GWAS effect sizes.
 #' @param R LD (Linkage Disequilibrium) matrix of variants.
 #' @param n Sample size of GWAS data.
-#' @param Lvec A vector of numbers of single effects to consider, default is c(0:9).
+#' @param L The number of single effect used in SuSiE.
 #' @param pip.thres A threshold to determine which variants are considered causal, default is 0.5.
 #' @param cred.thres A threshold to define the credible set, default is 0.95.
 #' @param max.iter Maximum number of iterations for estimating the infinitesimal effect, default is 15.
@@ -30,7 +30,7 @@
 #' @importFrom Matrix bdiag
 #' @export
 #'
-SuSiE_Inf_BIC <- function(z, R, n, Lvec = c(0:15), cred.thres = 0.95, pip.thres = 0.5, max.iter = 50, max.eps = 0.001, susie.iter = 500, reml.iter = 10, score.test = T, pv.thres = 0.05, eigen.thres = 1, varinf.upper.boundary=0.25) {
+SuSiE_Inf <- function(z, R, n, L = 5, cred.thres = 0.95, pip.thres = 0.5, max.iter = 50, max.eps = 0.001, susie.iter = 500, reml.iter = 10, score.test = T, pv.thres = 0.05, eigen.thres = 1, varinf.upper.boundary=0.25) {
 
 var.inf=0.5
 alpha=beta=z*0
@@ -48,23 +48,16 @@ Dvec=Dvec[1:Kthres]
 LD2=matrixMultiply(Umat,t(Umat)*(Dvec^2))
 
 Rinf=matrixMultiply(Umat,t(Umat)*(Dvec))
-
-Bicvec=Bvar.inf=Bpv=c(1:length(Lvec))
-Bbeta=matrix(0,m,length(Lvec))
-Balpha=matrix(0,m,length(Lvec))
-Bfit=list()
-beta=beta1=0*z
-for(i in 1:length(Lvec)){
+beta=beta1=alpha=z*0
 error=1
 iter=0
 fit=NULL
-alpha=z*0
 while(error>max.eps&iter<max.iter){
 beta1=beta
 beta=beta*0
 z1=z-matrixVectorMultiply(Rinf,alpha)
-fit=susie_rss(z=z1,R=R,n=n,L=max(1,Lvec[i]),residual_variance=1,s_init=fit,estimate_prior_method="EM",max_iter=susie.iter)
-beta=coef(fit)[-1]*(fit$pip>=pip.thres)*sqrt(n)*(Lvec[i]!=0)
+fit=susie_rss(z=z1,R=R,n=n,L=L,residual_variance=1,s_init=fit,estimate_prior_method="EM",max_iter=susie.iter)
+beta=coef(fit)[-1]*(fit$pip>=pip.thres)*sqrt(n)
 causal.cs=group.pip.filter(pip.summary=summary(fit)$var,pip.thres.cred=cred.thres)
 pip.alive=causal.cs$ind.keep
 beta[-pip.alive]=0
@@ -89,21 +82,5 @@ alpha=alpha*(pv<pv.thres)
 pv=1
 }
 }
-df1=Lvec[i]
-df2=sum(Dvec*Hinv)*(pv<pv.thres)
-res=z-matrixVectorMultiply(R,beta+alpha)
-Bicvec[i]=log(sum(res*matrixVectorMultiply(Theta,res)))+log(m)/m*(df1+df2)
-Bbeta[,i]=beta
-Balpha[,i]=alpha
-Bvar.inf[i]=var.inf
-Bpv[i]=pv
-Bfit[[i]]=fit
-}
-istar=which.min(Bicvec)
-beta=Bbeta[,istar]
-alpha=Balpha[,istar]
-pv=Bpv[istar]
-var.inf=Bvar.inf[istar]
-fit=Bfit[[istar]]
-return(list(eta=(alpha+beta)/sqrt(n),beta=beta/sqrt(n),alpha=alpha/sqrt(n),var.inf=var.inf,pv=pv,fit.susie=fit,L=Lvec[istar],Bicvec=Bicvec,df.inf=df2))
+return(list(eta=(alpha+beta)/sqrt(n),beta=beta/sqrt(n),alpha=alpha/sqrt(n),var.inf=var.inf,pv=pv,fit.susie=fit,df.inf=sum(Dvec*Hinv)))
 }

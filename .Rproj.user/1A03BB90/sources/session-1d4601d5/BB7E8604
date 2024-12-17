@@ -3,7 +3,7 @@
     "path": "C:/Users/yxy1234/Desktop/SuSiE.Inf.BIC/R/SuSiE_Inf_BIC.R",
     "project_path": "R/SuSiE_Inf_BIC.R",
     "type": "r_source",
-    "hash": "303956923",
+    "hash": "2834134183",
     "contents": "",
     "dirty": false,
     "created": 1734471229538.0,
@@ -12,15 +12,15 @@
     "properties": {
         "source_window_id": "",
         "Source": "Source",
-        "cursorPosition": "32,100",
-        "scrollLine": "26"
+        "cursorPosition": "92,31",
+        "scrollLine": "86"
     },
     "folds": "",
-    "lastKnownWriteTime": 1734476972,
+    "lastKnownWriteTime": 1734477748,
     "encoding": "UTF-8",
     "collab_server": "",
     "source_window": "",
-    "last_content_update": 1734476972083,
+    "last_content_update": 1734477748401,
     "read_only": false,
     "read_only_alternatives": []
 }
