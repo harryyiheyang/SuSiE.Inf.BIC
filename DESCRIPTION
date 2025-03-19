@@ -8,7 +8,7 @@ Description: This function utilizes the SuSiE (Sum of Single Effects) method for
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 Imports: 
     Matrix,
     susieR,

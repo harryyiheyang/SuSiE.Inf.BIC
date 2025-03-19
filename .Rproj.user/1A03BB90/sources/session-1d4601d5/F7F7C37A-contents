@@ -1,1 +1,0 @@
-saveRDS(LD,"data/LD.rds")

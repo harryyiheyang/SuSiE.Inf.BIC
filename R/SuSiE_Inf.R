@@ -34,7 +34,7 @@ SuSiE_Inf <- function(z, R, n, L = 5, cred.thres = 0.95, pip.thres = 0.5, max.it
 
 var.inf=0.5
 alpha=beta=z*0
-Theta=matrixInverse(R)
+Theta=matrixGeneralizedInverse(R)
 m=length(z)
 LD=R
 varinf.upper.boundary=varinf.upper.boundary*mean(z*(Theta%*%z))
