@@ -9,7 +9,7 @@ SuSiE_Inf_BIC(
   R,
   n,
   Lvec = c(0:15),
-  cred.thres = 0.95,
+  pip.cred.thres = 0.95,
   max.iter = 50,
   max.eps = 0.001,
   susie.iter = 500,
@@ -31,7 +31,7 @@ SuSiE_Inf_BIC(
 
 \item{Lvec}{A vector of numbers of single effects to consider, default is c(0:9).}
 
-\item{cred.thres}{A threshold to define the credible set, default is 0.95.}
+\item{pip.cred.thres}{A threshold to define the credible set, default is 0.95.}
 
 \item{max.iter}{Maximum number of iterations for estimating the infinitesimal effect, default is 15.}
 
@@ -50,8 +50,6 @@ SuSiE_Inf_BIC(
 \item{eigen.thres}{The threshold of eigenvalues for modelling the infinitesimal effect. Default is 1.}
 
 \item{varinf.upper.boundary}{The upper boundary for the prior variance of infinitesimal effects, multiplied by var(y) to adapt to different locus variances. Default is 0.25.}
-
-\item{gamma}{Increase this beyond 1 to increase the penalty on the REML of infinitesimal effect. Default is 1.}
 }
 \value{
 A list containing the following elements:

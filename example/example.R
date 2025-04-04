@@ -10,7 +10,7 @@ beta[-sample(m,4)]=0
 beta=beta/sqrt(sum(beta^2))*sqrt(0.001)
 alpha=beta*0
 alpha[sample(m,floor(m/2))]=rnorm(floor(m/2),0,sqrt(0.0005/floor(m/2)))
-n=2e5
+n=10e5
 hatb=matrixVectorMultiply(LD,beta+alpha)+matrixVectorMultiply(LDsqrt,rnorm(m,0,1/sqrt(n)))
 z=hatb*sqrt(n)
 fit_susie=susie_rss(z=z,R=LD,n=n,L=5)

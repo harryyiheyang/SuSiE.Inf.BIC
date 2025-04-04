@@ -6,7 +6,7 @@
 #' @param R LD (Linkage Disequilibrium) matrix of variants.
 #' @param n Sample size of GWAS data.
 #' @param Lvec A vector of numbers of single effects to consider, default is c(0:9).
-#' @param cred.thres A threshold to define the credible set, default is 0.95.
+#' @param pip.cred.thres A threshold to define the credible set, default is 0.95.
 #' @param max.iter Maximum number of iterations for estimating the infinitesimal effect, default is 15.
 #' @param max.eps The maximum epsilon for convergence in the iterative process, default is 0.001.
 #' @param reml.iter Number of iterations for the inner loop of the REML, default is 10.
@@ -16,7 +16,6 @@
 #' @param pip.thres In score test, a threshold to determine which variants are considered causal, default is 0.5. This will only be used in score test as a fixed effect adjustment.
 #' @param eigen.thres The threshold of eigenvalues for modelling the infinitesimal effect. Default is 1.
 #' @param varinf.upper.boundary The upper boundary for the prior variance of infinitesimal effects, multiplied by var(y) to adapt to different locus variances. Default is 0.25.
-#' @param gamma Increase this beyond 1 to increase the penalty on the REML of infinitesimal effect. Default is 1.
 #' @return A list containing the following elements:
 #'   - \code{eta}: Linear predictor, which is the sum of the causal effect (\code{beta}) and the infinitesimal effect (\code{alpha}). It represents the total genetic effect of variants on the trait, combining the direct effects of causal variants and the background genetic effects.
 #'   - \code{beta}: Causal effect. These are the effect estimates for variants identified with significant effect sizes through the SuSiE method, representing the direct impact of these variants on the trait.
@@ -30,7 +29,7 @@
 #' @importFrom Matrix bdiag
 #' @export
 #'
-SuSiE_Inf_BIC <- function(z, R, n, Lvec = c(0:15), cred.thres = 0.95, max.iter = 50, max.eps = 0.001, susie.iter = 500, reml.iter = 10, score.test = T, pip.thres = 0.5, pv.thres = 0.05, eigen.thres = 1, varinf.upper.boundary=0.25, gamma = 1) {
+SuSiE_Inf_BIC <- function(z, R, n, Lvec = c(0:15), pip.cred.thres = 0.95, max.iter = 50, max.eps = 0.001, susie.iter = 500, reml.iter = 10, score.test = T, pip.thres = 0.5, pv.thres = 0.05, eigen.thres = 1, varinf.upper.boundary=0.25, gamma = 1) {
 
 var.inf=0.5
 alpha=beta=z*0
@@ -65,14 +64,14 @@ beta=beta*0
 z1=z-matrixVectorMultiply(Rinf,alpha)
 fit=susie_rss(z=z1,R=R,n=n,L=max(1,Lvec[i]),residual_variance=1,s_init=fit,estimate_prior_method="EM",max_iter=susie.iter)
 beta=coef(fit)[-1]*sqrt(n)*(Lvec[i]!=0)
-causal.cs=group.pip.filter(pip.summary=summary(fit)$var,pip.thres.cred=cred.thres)
+causal.cs=group.pip.filter(pip.summary=summary(fit)$var,pip.thres.cred=pip.cred.thres)
 pip.alive=causal.cs$ind.keep
 beta[-pip.alive]=0
 
 res.upsilon=z-matrixVectorMultiply(R,beta)
 outcome=matrixVectorMultiply(t(Umat),res.upsilon)
 for(j in 1:reml.iter){
-Hinv=1/(Dvec+gamma/var.inf)
+Hinv=1/(Dvec+1/var.inf)
 alpha=matrixVectorMultiply(Umat,outcome*Hinv)
 for(jj in 1:3){
 df=sum(Hinv)
@@ -83,7 +82,9 @@ var.inf=min((sum(alpha^2)+df)/m,varinf.upper.boundary)
 if(iter>3){error=max(abs(beta-beta1))}
 iter=iter+1
 if(score.test==T){
-pv=inf.test(res.inf=res.upsilon,LD=R,LD2=LD2,Theta=Theta,A=R[,which(fit$pip>=pip.thres)])
+indbeta=top_K_pip(summary(fit)$vars,top_K=1,pip.min.thres=0.01,xQTL.pip.thres=pip.thres)
+test=inf.test(res.inf=res.upsilon,LD=R,LD2=LD2,Theta=Theta,A=R[,which(fit$pip>=pip.thres)])
+pv=test$pv
 alpha=alpha*(pv<pv.thres)
 }else{
 pv=1
