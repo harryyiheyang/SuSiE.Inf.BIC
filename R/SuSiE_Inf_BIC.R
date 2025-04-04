@@ -29,7 +29,7 @@
 #' @importFrom Matrix bdiag
 #' @export
 #'
-SuSiE_Inf_BIC <- function(z, R, n, Lvec = c(0:15), pip.cred.thres = 0.95, max.iter = 50, max.eps = 0.001, susie.iter = 500, reml.iter = 10, score.test = T, pip.thres = 0.5, pv.thres = 0.05, eigen.thres = 1, varinf.upper.boundary=0.25, gamma = 1) {
+SuSiE_Inf_BIC <- function(z, R, n, Lvec = c(0:15), pip.cred.thres = 0.95, max.iter = 50, max.eps = 0.001, susie.iter = 500, reml.iter = 10, score.test = T, pip.thres = 0.5, pv.thres = 0.05, eigen.thres = 1, varinf.upper.boundary=0.25) {
 
 var.inf=0.5
 alpha=beta=z*0

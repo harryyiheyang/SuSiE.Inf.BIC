@@ -18,8 +18,7 @@ SuSiE_Inf_BIC(
   pip.thres = 0.5,
   pv.thres = 0.05,
   eigen.thres = 1,
-  varinf.upper.boundary = 0.25,
-  gamma = 1
+  varinf.upper.boundary = 0.25
 )
 }
 \arguments{
