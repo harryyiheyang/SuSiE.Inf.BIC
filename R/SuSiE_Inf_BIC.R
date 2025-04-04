@@ -72,7 +72,7 @@ beta[-pip.alive]=0
 res.upsilon=z-matrixVectorMultiply(R,beta)
 outcome=matrixVectorMultiply(t(Umat),res.upsilon)
 for(j in 1:reml.iter){
-Hinv=1/(Dvec*gamma+1/var.inf)
+Hinv=1/(Dvec+gamma/var.inf)
 alpha=matrixVectorMultiply(Umat,outcome*Hinv)
 for(jj in 1:3){
 df=sum(Hinv)
