@@ -18,7 +18,8 @@ SuSiE_Inf_BIC(
   score.test = T,
   pv.thres = 0.05,
   eigen.thres = 1,
-  varinf.upper.boundary = 0.25
+  varinf.upper.boundary = 0.25,
+  gamma = 1
 )
 }
 \arguments{
@@ -49,6 +50,8 @@ SuSiE_Inf_BIC(
 \item{eigen.thres}{The threshold of eigenvalues for modelling the infinitesimal effect. Default is 1.}
 
 \item{varinf.upper.boundary}{The upper boundary for the prior variance of infinitesimal effects, multiplied by var(y) to adapt to different locus variances. Default is 0.25.}
+
+\item{gamma}{Increase this beyond 1 to increase the penalty on the REML of infinitesimal effect. Default is 1.}
 }
 \value{
 A list containing the following elements:

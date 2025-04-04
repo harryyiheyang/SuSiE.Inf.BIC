@@ -16,7 +16,7 @@
 #' @param pv.thres A threshold in score test of variance, default to 0.05. If the P-value of score test is larger than this threshold, the infinitesimal effect is removed.
 #' @param eigen.thres The threshold of eigenvalues for modelling the infinitesimal effect. Default is 1.
 #' @param varinf.upper.boundary The upper boundary for the prior variance of infinitesimal effects, multiplied by var(y) to adapt to different locus variances. Default is 0.25.
-
+#' @param gamma Increase this beyond 1 to increase the penalty on the REML of infinitesimal effect. Default is 1.
 #' @return A list containing the following elements:
 #'   - \code{eta}: Linear predictor, which is the sum of the causal effect (\code{beta}) and the infinitesimal effect (\code{alpha}). It represents the total genetic effect of variants on the trait, combining the direct effects of causal variants and the background genetic effects.
 #'   - \code{beta}: Causal effect. These are the effect estimates for variants identified with significant effect sizes through the SuSiE method, representing the direct impact of these variants on the trait.
@@ -30,7 +30,7 @@
 #' @importFrom Matrix bdiag
 #' @export
 #'
-SuSiE_Inf_BIC <- function(z, R, n, Lvec = c(0:15), cred.thres = 0.95, pip.thres = 0.5, max.iter = 50, max.eps = 0.001, susie.iter = 500, reml.iter = 10, score.test = T, pv.thres = 0.05, eigen.thres = 1, varinf.upper.boundary=0.25) {
+SuSiE_Inf_BIC <- function(z, R, n, Lvec = c(0:15), cred.thres = 0.95, pip.thres = 0.5, max.iter = 50, max.eps = 0.001, susie.iter = 500, reml.iter = 10, score.test = T, pv.thres = 0.05, eigen.thres = 1, varinf.upper.boundary=0.25, gamma = 1) {
 
 var.inf=0.5
 alpha=beta=z*0
@@ -72,7 +72,7 @@ beta[-pip.alive]=0
 res.upsilon=z-matrixVectorMultiply(R,beta)
 outcome=matrixVectorMultiply(t(Umat),res.upsilon)
 for(j in 1:reml.iter){
-Hinv=1/(Dvec+1/var.inf)
+Hinv=1/(Dvec*gamma+1/var.inf)
 alpha=matrixVectorMultiply(Umat,outcome*Hinv)
 for(jj in 1:3){
 df=sum(Hinv)
@@ -90,9 +90,9 @@ pv=1
 }
 }
 df1=Lvec[i]
-df2=sum(Dvec*Hinv)*(pv<pv.thres)
+df2=sum(gamma*Dvec*Hinv)*(pv<pv.thres)
 res=z-matrixVectorMultiply(R,beta+alpha)
-Bicvec[i]=log(sum(res*matrixVectorMultiply(Theta,res)))+log(m)/m*(df1+df2)
+Bicvec[i]=log(sum(res*matrixVectorMultiply(Theta,res)))+log(n)/n*(df1+df2)
 Bbeta[,i]=beta
 Balpha[,i]=alpha
 Bvar.inf[i]=var.inf
