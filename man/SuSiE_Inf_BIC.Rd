@@ -10,12 +10,12 @@ SuSiE_Inf_BIC(
   n,
   Lvec = c(0:15),
   cred.thres = 0.95,
-  pip.thres = 0.5,
   max.iter = 50,
   max.eps = 0.001,
   susie.iter = 500,
   reml.iter = 10,
   score.test = T,
+  pip.thres = 0.5,
   pv.thres = 0.05,
   eigen.thres = 1,
   varinf.upper.boundary = 0.25,
@@ -33,8 +33,6 @@ SuSiE_Inf_BIC(
 
 \item{cred.thres}{A threshold to define the credible set, default is 0.95.}
 
-\item{pip.thres}{A threshold to determine which variants are considered causal, default is 0.5.}
-
 \item{max.iter}{Maximum number of iterations for estimating the infinitesimal effect, default is 15.}
 
 \item{max.eps}{The maximum epsilon for convergence in the iterative process, default is 0.001.}
@@ -45,7 +43,9 @@ SuSiE_Inf_BIC(
 
 \item{score.test}{Perform score test of variance component or not, default to F.}
 
-\item{pv.thres}{A threshold in score test of variance, default to 0.05. If the P-value of score test is larger than this threshold, the infinitesimal effect is removed.}
+\item{pip.thres}{In score test, a threshold to determine which variants are considered causal, default is 0.5. This will only be used in score test as a fixed effect adjustment.}
+
+\item{pv.thres}{In score test, a threshold in score test of variance, default to 0.05. If the P-value of score test is larger than this threshold, the infinitesimal effect is removed.}
 
 \item{eigen.thres}{The threshold of eigenvalues for modelling the infinitesimal effect. Default is 1.}
 
