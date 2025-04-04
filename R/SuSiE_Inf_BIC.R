@@ -90,7 +90,7 @@ pv=1
 }
 }
 df1=Lvec[i]
-df2=sum(gamma*Dvec*Hinv)*(pv<pv.thres)
+df2=sum(Dvec*Hinv)*(pv<pv.thres)
 res=z-matrixVectorMultiply(R,beta+alpha)
 Bicvec[i]=log(sum(res*matrixVectorMultiply(Theta,res)))+log(n)/n*(df1+df2)
 Bbeta[,i]=beta
